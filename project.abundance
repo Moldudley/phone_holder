@@ -157,6 +157,154 @@
           "currentEquation": "3"
         }
       ]
+    },
+    {
+      "atomType": "GitHubMolecule",
+      "x": 0.5951962507322789,
+      "y": 0.3629441624365482,
+      "uniqueID": "id-167",
+      "name": "Fillet_SidesOnly",
+      "ioValues": [
+        {
+          "name": "InputShape",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "Fillet",
+          "ioValue": 1
+        }
+      ],
+      "topLevel": false,
+      "allAtoms": [
+        {
+          "atomType": "Output",
+          "x": 0.98,
+          "y": 0.5,
+          "uniqueID": "id-161",
+          "ioValues": [
+            {
+              "name": "number or geometry",
+              "ioValue": "__GEOMETRY_INPUT__"
+            }
+          ]
+        },
+        {
+          "atomType": "Code",
+          "x": 0.48956228956228953,
+          "y": 0.48192771084337344,
+          "uniqueID": "id-162",
+          "ioValues": [
+            {
+              "name": "shape",
+              "ioValue": "__GEOMETRY_INPUT__"
+            },
+            {
+              "name": "fillet",
+              "ioValue": 1
+            }
+          ],
+          "interpreterVersion": 0,
+          "code": "\n// Example Code\nconst Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"fillet\", type: \"number\", defaultValue: 1 },\n];\n\nlet importedShape = library[shape]\nlet newPlane = replicad.makePlane()\n\nif (fillet > 0){\n  \nlet filletedCyl = importedShape.geometry[0].fillet(fillet, (e) => e.inDirection([0, 0, 1]));\n return {\n  geometry: [filletedCyl],\n  dimension: \"3D\",\n  tags: [\"createdShape\"],\n  color: '#A3CE5B',\n  plane: newPlane,\n  bom: [],\n}\n}\nelse{\n  return {\n  geometry: [importedShape],\n  dimension: \"3D\",\n  tags: [\"createdShape\"],\n  color: '#A3CE5B',\n  plane: newPlane,\n  bom: [],\n}\n  \n}\n"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.15384615384615385,
+          "uniqueID": "id-163",
+          "name": "InputShape",
+          "type": "geometry"
+        },
+        {
+          "atomType": "Rectangle",
+          "x": 0.11582491582491583,
+          "y": 0.6837349397590361,
+          "uniqueID": "id-164",
+          "ioValues": [
+            {
+              "name": "x length",
+              "ioValue": 10
+            },
+            {
+              "name": "y length",
+              "ioValue": 10
+            }
+          ]
+        },
+        {
+          "atomType": "Extrude",
+          "x": 0.19797979797979798,
+          "y": 0.7801204819277108,
+          "uniqueID": "id-165",
+          "ioValues": [
+            {
+              "name": "geometry",
+              "ioValue": "__GEOMETRY_INPUT__"
+            },
+            {
+              "name": "height",
+              "ioValue": 10
+            }
+          ]
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.24615384615384617,
+          "uniqueID": "id-166",
+          "name": "Fillet"
+        }
+      ],
+      "allConnectors": [
+        {
+          "ap2Name": "number or geometry",
+          "ap1ID": "id-162",
+          "ap2ID": "id-161"
+        },
+        {
+          "ap2Name": "shape",
+          "ap1ID": "id-163",
+          "ap2ID": "id-162"
+        },
+        {
+          "ap2Name": "geometry",
+          "ap1ID": "id-164",
+          "ap2ID": "id-165"
+        },
+        {
+          "ap2Name": "fillet",
+          "ap1ID": "id-166",
+          "ap2ID": "id-162"
+        }
+      ],
+      "parentRepo": {
+        "lastFoundGit": "2026-08-17T18:23:38.936Z",
+        "privateRepo": false,
+        "repoName": "Fillet_SidesOnly",
+        "dateCreated": "2026-02-22T22:54:42Z",
+        "likes": 0,
+        "readMe": "https://raw.githubusercontent.com/alzatin/Fillet_SidesOnly/master/README.md?sanitize=true",
+        "yyyy": 2026,
+        "topMoleculeID": "id-94",
+        "githubMoleculesUsed": [],
+        "html_url": "https://github.com/alzatin/Fillet_SidesOnly",
+        "topics": [
+          "abundance-tool"
+        ],
+        "pullRequests": [],
+        "parentRepo": null,
+        "forks": 0,
+        "dateModified": "739701",
+        "ranking": 5.4,
+        "searchField": "fillet_sidesonly alzatin fillets sides of an extrusion abundance-tool",
+        "owner": "alzatin",
+        "description": "Fillets sides of an extrusion",
+        "contentURL": "https://raw.githubusercontent.com/alzatin/Fillet_SidesOnly/master/project.abundance?sanitize=true",
+        "svgURL": "https://raw.githubusercontent.com/alzatin/Fillet_SidesOnly/master/project.svg?sanitize=true",
+        "isLocal": false
+      },
+      "unitsKey": "MM",
+      "fileTypeVersion": 1,
+      "lastReloadedFromGithubAt": 1787007621431
     }
   ],
   "allConnectors": [
@@ -179,6 +327,16 @@
       "ap2Name": "geometry",
       "ap1ID": "id-65",
       "ap2ID": "id-87"
+    },
+    {
+      "ap2Name": "InputShape",
+      "ap1ID": "id-87",
+      "ap2ID": "id-167"
+    },
+    {
+      "ap2Name": "number or geometry",
+      "ap1ID": "id-167",
+      "ap2ID": "id-60"
     }
   ],
   "unitsKey": "MM",
