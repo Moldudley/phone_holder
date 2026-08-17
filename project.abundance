@@ -335,8 +335,8 @@
     },
     {
       "atomType": "GitHubMolecule",
-      "x": 0.4751025190392501,
-      "y": 0.748730964467005,
+      "x": 0.5536028119507909,
+      "y": 0.7284263959390863,
       "uniqueID": "id-227",
       "name": "Above",
       "ioValues": [
@@ -495,30 +495,6 @@
           "ioValue": 10
         }
       ]
-    },
-    {
-      "atomType": "Molecule",
-      "x": 0.6010544815465729,
-      "y": 0.66751269035533,
-      "uniqueID": "id-249",
-      "name": "Molecule",
-      "topLevel": false,
-      "allAtoms": [
-        {
-          "atomType": "Output",
-          "x": 0.98,
-          "y": 0.5,
-          "uniqueID": "id-251",
-          "ioValues": [
-            {
-              "name": "number or geometry",
-              "ioValue": "__GEOMETRY_INPUT__"
-            }
-          ]
-        }
-      ],
-      "allConnectors": [],
-      "fileTypeVersion": 1
     }
   ],
   "allConnectors": [
