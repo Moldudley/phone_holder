@@ -4,6 +4,12 @@
   "y": 0,
   "uniqueID": "id-59",
   "name": "phone_holder",
+  "ioValues": [
+    {
+      "name": "Input",
+      "ioValue": 10
+    }
+  ],
   "topLevel": true,
   "allAtoms": [
     {
@@ -43,13 +49,13 @@
       "ioValues": [
         {
           "name": "x length",
-          "ioValue": 45,
-          "currentEquation": "45"
+          "ioValue": 30,
+          "currentEquation": "30"
         },
         {
           "name": "y length",
-          "ioValue": 76,
-          "currentEquation": "76"
+          "ioValue": 82,
+          "currentEquation": "82"
         }
       ]
     },
@@ -65,8 +71,8 @@
         },
         {
           "name": "xDist",
-          "ioValue": 30,
-          "currentEquation": "30"
+          "ioValue": 37.5,
+          "currentEquation": "37.5"
         },
         {
           "name": "yDist",
@@ -114,7 +120,7 @@
         {
           "name": "Shape 4",
           "ioValue": {
-            "geometry": "move-rectangle-45-76-30-0-0",
+            "geometry": "move-rectangle-30-82-37.5-0-0",
             "dimension": "2D",
             "plane": {
               "origin": [
@@ -305,6 +311,55 @@
       "unitsKey": "MM",
       "fileTypeVersion": 1,
       "lastReloadedFromGithubAt": 1787007621431
+    },
+    {
+      "atomType": "Input",
+      "x": 0.025384615384615384,
+      "y": 0.15384615384615385,
+      "uniqueID": "id-185"
+    },
+    {
+      "atomType": "Rectangle",
+      "x": 0.14762741652021089,
+      "y": 0.3934010152284264,
+      "uniqueID": "id-188",
+      "ioValues": [
+        {
+          "name": "x length",
+          "ioValue": 3,
+          "currentEquation": "3"
+        },
+        {
+          "name": "y length",
+          "ioValue": 82,
+          "currentEquation": "82"
+        }
+      ]
+    },
+    {
+      "atomType": "Move",
+      "x": 0.2519039250146456,
+      "y": 0.6116751269035533,
+      "uniqueID": "id-192",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "xDist",
+          "ioValue": 52,
+          "currentEquation": "52"
+        },
+        {
+          "name": "yDist",
+          "ioValue": 0
+        },
+        {
+          "name": "zDist",
+          "ioValue": 0
+        }
+      ]
     }
   ],
   "allConnectors": [
@@ -337,6 +392,11 @@
       "ap2Name": "number or geometry",
       "ap1ID": "id-167",
       "ap2ID": "id-60"
+    },
+    {
+      "ap2Name": "geometry",
+      "ap1ID": "id-188",
+      "ap2ID": "id-192"
     }
   ],
   "unitsKey": "MM",
