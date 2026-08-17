@@ -43,7 +43,8 @@
       "ioValues": [
         {
           "name": "x length",
-          "ioValue": 10
+          "ioValue": 45,
+          "currentEquation": "45"
         },
         {
           "name": "y length",
@@ -64,8 +65,7 @@
         },
         {
           "name": "xDist",
-          "ioValue": 42.5,
-          "currentEquation": "42.5"
+          "ioValue": 30
         },
         {
           "name": "yDist",
@@ -113,7 +113,7 @@
         {
           "name": "Shape 4",
           "ioValue": {
-            "geometry": "move-rectangle-10-76-42.5-0-0",
+            "geometry": "move-rectangle-45-76-30-0-0",
             "dimension": "2D",
             "plane": {
               "origin": [
