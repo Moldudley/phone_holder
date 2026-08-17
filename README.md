@@ -8,6 +8,7 @@
 
 - **Input** (number)
 - **Input_1** (number)
+- **Input_2** (number)
 
 
 
