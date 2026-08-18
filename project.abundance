@@ -545,8 +545,8 @@
     },
     {
       "atomType": "Move",
-      "x": 0.24253075571177504,
-      "y": 0.7436548223350253,
+      "x": 0.2530755711775044,
+      "y": 0.7309644670050761,
       "uniqueID": "id-257",
       "ioValues": [
         {
@@ -577,8 +577,8 @@
     },
     {
       "atomType": "Rectangle",
-      "x": 0.14645577035735208,
-      "y": 0.9035532994923858,
+      "x": 0.15055653192735793,
+      "y": 0.8857868020304569,
       "uniqueID": "id-267",
       "ioValues": [
         {
@@ -594,45 +594,177 @@
       ]
     },
     {
-      "atomType": "Code",
-      "x": 0.4124194493263034,
-      "y": 0.8350253807106598,
-      "uniqueID": "id-271",
+      "atomType": "Move",
+      "x": 0.25055653192735794,
+      "y": 0.8857868020304569,
+      "uniqueID": "id-285",
       "ioValues": [
         {
-          "name": "thickness",
-          "ioValue": 5
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
         },
         {
-          "name": "color",
-          "ioValue": "#5B9BD5",
-          "currentEquation": "#5B9BD5"
+          "name": "xDist",
+          "ioValue": 37.5,
+          "currentEquation": "37.5"
         },
         {
-          "name": "chord",
-          "ioValue": 100
+          "name": "yDist",
+          "ioValue": 31,
+          "currentEquation": "31"
         },
         {
-          "name": "span",
-          "ioValue": 200
+          "name": "zDist",
+          "ioValue": 0
+        }
+      ]
+    },
+    {
+      "atomType": "GitHubMolecule",
+      "x": 0.4774458113649678,
+      "y": 0.8248730964467005,
+      "uniqueID": "id-298",
+      "name": "Above",
+      "ioValues": [
+        {
+          "name": "B",
+          "ioValue": "__GEOMETRY_INPUT__"
         },
         {
-          "name": "maxCamber",
-          "ioValue": 0,
-          "currentEquation": "0"
-        },
-        {
-          "name": "camberPosition",
-          "ioValue": 4
-        },
-        {
-          "name": "numPoints",
-          "ioValue": 50
+          "name": "A",
+          "ioValue": "__GEOMETRY_INPUT__"
         }
       ],
-      "interpreterVersion": 1,
-      "code": "/**\r\n * NACA 4-digit airfoil wing (e.g. 2412 -> maxCamber=2, camberPosition=4, thickness=12).\r\n * Closed trailing edge. Extrudes the profile along the sketch normal for the span.\r\n * chord/span in mm; maxCamber and thickness as % of chord; camberPosition in tenths of chord.\r\n */\r\nfunction run(\r\n  chord: number = 100,\r\n  span: number = 200,\r\n  maxCamber: number = 2,\r\n  camberPosition: number = 4,\r\n  thickness: number = 12,\r\n  numPoints: number = 50,\r\n  color: string = \"#4A90E2\",\r\n): Assembly {\r\n  const m = maxCamber / 100;\r\n  const p = camberPosition / 10;\r\n  const t = thickness / 100;\r\n\r\n  function camber(x: number): { yc: number; dyc: number } {\r\n    if (p === 0 || m === 0) return { yc: 0, dyc: 0 };\r\n    if (x < p) {\r\n      return {\r\n        yc: (m / (p * p)) * (2 * p * x - x * x),\r\n        dyc: ((2 * m) / (p * p)) * (p - x),\r\n      };\r\n    }\r\n    return {\r\n      yc: (m / ((1 - p) * (1 - p))) * (1 - 2 * p + 2 * p * x - x * x),\r\n      dyc: ((2 * m) / ((1 - p) * (1 - p))) * (p - x),\r\n    };\r\n  }\r\n\r\n  function thicknessDist(x: number): number {\r\n    return (\r\n      5 *\r\n      t *\r\n      (0.2969 * Math.sqrt(x) -\r\n        0.126 * x -\r\n        0.3516 * x * x +\r\n        0.2843 * x * x * x -\r\n        0.1036 * x * x * x * x)\r\n    );\r\n  }\r\n\r\n  const xs: number[] = [];\r\n  for (let i = 0; i <= numPoints; i++) {\r\n    xs.push((1 - Math.cos((Math.PI * i) / numPoints)) / 2);\r\n  }\r\n\r\n  const upper: [number, number][] = [];\r\n  const lower: [number, number][] = [];\r\n\r\n  for (const x of xs) {\r\n    const { yc, dyc } = camber(x);\r\n    const yt = thicknessDist(x);\r\n    const theta = Math.atan(dyc);\r\n\r\n    upper.push([(x - yt * Math.sin(theta)) * chord, (yc + yt * Math.cos(theta)) * chord]);\r\n    lower.push([(x + yt * Math.sin(theta)) * chord, (yc - yt * Math.cos(theta)) * chord]);\r\n  }\r\n\r\n  const points: [number, number][] = [...upper];\r\n  for (let i = numPoints - 1; i >= 1; i--) points.push(lower[i]);\r\n\r\n  let pen = replicad.draw(points[0]);\r\n  for (let i = 1; i < points.length; i++) {\r\n    pen = pen.lineTo(points[i]);\r\n  }\r\n  const profile = pen.close();\r\n\r\n  const wing = profile\r\n    .sketchOnPlane()\r\n    .extrude(span)\r\n    .translate(-chord / 2, 0, 0);\r\n\r\n  return new Assembly({\r\n    geometry: wing,\r\n    color: color,\r\n    tags: [\"airfoil\", \"naca\", `naca-${maxCamber}${camberPosition}${thickness}`],\r\n    bom: [\r\n      `NACA ${maxCamber}${camberPosition}${thickness} airfoil, chord ${chord}mm, span ${span}mm`,\r\n    ],\r\n  });\r\n}",
-      "compiledCode": "\"use strict\";\n/**\n * NACA 4-digit airfoil wing (e.g. 2412 -> maxCamber=2, camberPosition=4, thickness=12).\n * Closed trailing edge. Extrudes the profile along the sketch normal for the span.\n * chord/span in mm; maxCamber and thickness as % of chord; camberPosition in tenths of chord.\n */\nfunction run(chord = 100, span = 200, maxCamber = 2, camberPosition = 4, thickness = 12, numPoints = 50, color = \"#4A90E2\") {\n    const m = maxCamber / 100;\n    const p = camberPosition / 10;\n    const t = thickness / 100;\n    function camber(x) {\n        if (p === 0 || m === 0)\n            return { yc: 0, dyc: 0 };\n        if (x < p) {\n            return {\n                yc: (m / (p * p)) * (2 * p * x - x * x),\n                dyc: ((2 * m) / (p * p)) * (p - x),\n            };\n        }\n        return {\n            yc: (m / ((1 - p) * (1 - p))) * (1 - 2 * p + 2 * p * x - x * x),\n            dyc: ((2 * m) / ((1 - p) * (1 - p))) * (p - x),\n        };\n    }\n    function thicknessDist(x) {\n        return (5 *\n            t *\n            (0.2969 * Math.sqrt(x) -\n                0.126 * x -\n                0.3516 * x * x +\n                0.2843 * x * x * x -\n                0.1036 * x * x * x * x));\n    }\n    const xs = [];\n    for (let i = 0; i <= numPoints; i++) {\n        xs.push((1 - Math.cos((Math.PI * i) / numPoints)) / 2);\n    }\n    const upper = [];\n    const lower = [];\n    for (const x of xs) {\n        const { yc, dyc } = camber(x);\n        const yt = thicknessDist(x);\n        const theta = Math.atan(dyc);\n        upper.push([(x - yt * Math.sin(theta)) * chord, (yc + yt * Math.cos(theta)) * chord]);\n        lower.push([(x + yt * Math.sin(theta)) * chord, (yc - yt * Math.cos(theta)) * chord]);\n    }\n    const points = [...upper];\n    for (let i = numPoints - 1; i >= 1; i--)\n        points.push(lower[i]);\n    let pen = replicad.draw(points[0]);\n    for (let i = 1; i < points.length; i++) {\n        pen = pen.lineTo(points[i]);\n    }\n    const profile = pen.close();\n    const wing = profile\n        .sketchOnPlane()\n        .extrude(span)\n        .translate(-chord / 2, 0, 0);\n    return new Assembly({\n        geometry: wing,\n        color: color,\n        tags: [\"airfoil\", \"naca\", `naca-${maxCamber}${camberPosition}${thickness}`],\n        bom: [\n            `NACA ${maxCamber}${camberPosition}${thickness} airfoil, chord ${chord}mm, span ${span}mm`,\n        ],\n    });\n}\n"
+      "topLevel": false,
+      "allAtoms": [
+        {
+          "atomType": "Output",
+          "x": 0.98,
+          "y": 0.5,
+          "uniqueID": "id-292",
+          "ioValues": [
+            {
+              "name": "number or geometry",
+              "ioValue": "__GEOMETRY_INPUT__"
+            }
+          ]
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.15384615384615385,
+          "uniqueID": "id-293",
+          "name": "B",
+          "type": "geometry"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.24615384615384617,
+          "uniqueID": "id-294",
+          "name": "A",
+          "type": "geometry"
+        },
+        {
+          "atomType": "Code",
+          "x": 0.4417989417989418,
+          "y": 0.5431754874651811,
+          "uniqueID": "id-295",
+          "ioValues": [
+            {
+              "name": "A",
+              "ioValue": "__GEOMETRY_INPUT__"
+            },
+            {
+              "name": "B",
+              "ioValue": "__GEOMETRY_INPUT__"
+            }
+          ],
+          "interpreterVersion": 0,
+          "code": "\n      Inputs = [\n       {inputName: \"A\", type: \"geometry\", defaultValue: null},\n        {inputName: \"B\", type: \"geometry\", defaultValue: null}\n      ]\n      //This defines the molecules inputs and creates variables with the same names which can be referenced in the code\n\n      let boundsA = await GetBounds(A);\n      let A_minZ = boundsA.min[2];\n\n      let B_maxZ = 0;\n      if(B){\n          let boundsB = await GetBounds(B);\n          console.log(\"Bounding Box B:  \");\n          console.log(boundsB);\n          B_maxZ  = boundsB.max[2];\n      }\n\n     let translationZ = B_maxZ - A_minZ;\n     \n      let movedOutput = await Move(A, 0, 0, translationZ);\n\n      return movedOutput;\n\n      // //We can also create a new shape from scratch\n      // let createdRectangle = replicad.drawRectangle(5,7)\n      // //This is the plane we are going to put our new shape on\n      // const newPlane = new replicad.Plane().pivot(0, 'Y');\n      // //And we extrude the shape to make it 3D\n      // let createdShape = createdRectangle.sketchOnPlane(newPlane).extrude(height)\n\n      // //For our new geometry we need to define the tags, color, plane, etc\n      // let shape2 = {\n      //     geometry: [createdShape],\n      //     tags: [\"aTag\"],\n      //     color: '#A3CE5B',\n      //     plane: newPlane,\n      //     bom: []\n      // }\n\n      // //Then we can return our created shape in just the same way\n      // //return shape2\n\n      // //If we want to return both shapes at once, we can create an assembly with them\n      // let anAssembly = {\n      //   geometry: [shape1, shape2],\n      //   tags: [\"aNewTag\"],\n      //   color: '#A3CF5B',\n      //   plane: newPlane,\n      //   bom: []\n      // }\n\n      // //And we can return that in the same way\n      // return anAssembly\n\n      /**\n      To Use the Code Atom, enter your inputs to the input list as an object array:\n      Inputs = [\n        {inputName: \"shape\", type: \"geometry\", defaultValue: null},\n        {inputName: \"dist\", type: \"number\", defaultValue: 5},\n        {inputName: \"height\", type: \"number\", defaultValue: 10}\n      ]\n      If your input is connected to another atom with a replicad geometry you can access its geometry by looking up its ID in your library. a.e library[Input1].geometry[0]\n      Use any replicad available methods to modify your geometry. Learn more about all of the available methods at\n      https://replicad.xyz/docs/introapp/UserGuide.html\n      Return a replicad object that includes geometry, color, tags and plane.\n\n      Example Code Atom:\n        Inputs = [\n          {inputName: \"shape\", type: \"geometry\", defaultValue: null},\n          {inputName: \"x\", type: \"number\", defaultValue: 5}\n        ]\n        let finalShape = library[shape].geometry[0].clone().translate([x,0,0])\n        return {geometry: finalShape, color: library[shape].color, plane: library[shape].plane, tags: library[shape].tags }\n      */\n      "
+        },
+        {
+          "atomType": "Rectangle",
+          "x": 0.23875661375661375,
+          "y": 0.7604456824512534,
+          "uniqueID": "id-296",
+          "ioValues": [
+            {
+              "name": "x length",
+              "ioValue": 10
+            },
+            {
+              "name": "y length",
+              "ioValue": 10
+            }
+          ]
+        },
+        {
+          "atomType": "Extrude",
+          "x": 0.33796296296296297,
+          "y": 0.7604456824512534,
+          "uniqueID": "id-297",
+          "ioValues": [
+            {
+              "name": "geometry",
+              "ioValue": "__GEOMETRY_INPUT__"
+            },
+            {
+              "name": "height",
+              "ioValue": 9
+            }
+          ]
+        }
+      ],
+      "allConnectors": [
+        {
+          "ap2Name": "B",
+          "ap1ID": "id-293",
+          "ap2ID": "id-295"
+        },
+        {
+          "ap2Name": "A",
+          "ap1ID": "id-294",
+          "ap2ID": "id-295"
+        },
+        {
+          "ap2Name": "number or geometry",
+          "ap1ID": "id-295",
+          "ap2ID": "id-292"
+        },
+        {
+          "ap2Name": "geometry",
+          "ap1ID": "id-296",
+          "ap2ID": "id-297"
+        }
+      ],
+      "parentRepo": {
+        "lastFoundGit": "2026-08-18T10:23:39.059Z",
+        "privateRepo": false,
+        "repoName": "Above",
+        "dateCreated": "2025-09-22T22:39:35Z",
+        "likes": 0,
+        "readMe": "https://raw.githubusercontent.com/BarbourSmith/Above/master/README.md?sanitize=true",
+        "yyyy": 2025,
+        "topMoleculeID": "decd9514-fa8b-49ad-b680-2aaf10b00d00",
+        "githubMoleculesUsed": [],
+        "html_url": "https://github.com/BarbourSmith/Above",
+        "topics": [],
+        "pullRequests": [],
+        "parentRepo": null,
+        "forks": 0,
+        "dateModified": "739604",
+        "ranking": 8.1,
+        "searchField": "above barboursmith takes two inputs and moves input a in the z-axis direction so that it ends up above b as defined by their bounding boxes ",
+        "owner": "BarbourSmith",
+        "description": "Takes two inputs and moves input A in the Z-axis direction so that it ends up Above B as defined by their bounding boxes",
+        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/Above/master/project.abundance?sanitize=true",
+        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/Above/master/project.svg?sanitize=true",
+        "isLocal": false
+      },
+      "unitsKey": "MM",
+      "fileTypeVersion": 1,
+      "lastReloadedFromGithubAt": 1787071471868
     }
   ],
   "allConnectors": [
@@ -705,6 +837,11 @@
       "ap2Name": "Shape 3",
       "ap1ID": "id-257",
       "ap2ID": "id-211"
+    },
+    {
+      "ap2Name": "geometry",
+      "ap1ID": "id-267",
+      "ap2ID": "id-285"
     }
   ],
   "unitsKey": "MM",
