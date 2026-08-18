@@ -592,6 +592,46 @@
           "currentEquation": "20"
         }
       ]
+    },
+    {
+      "atomType": "Code",
+      "x": 0.4124194493263034,
+      "y": 0.8350253807106598,
+      "uniqueID": "id-271",
+      "ioValues": [
+        {
+          "name": "width",
+          "ioValue": 40
+        },
+        {
+          "name": "depth",
+          "ioValue": 30
+        },
+        {
+          "name": "thickness",
+          "ioValue": 5
+        },
+        {
+          "name": "holeRadius",
+          "ioValue": 6
+        },
+        {
+          "name": "color",
+          "ioValue": "#5B9BD5",
+          "currentEquation": "#5B9BD5"
+        },
+        {
+          "name": "addFillet",
+          "ioValue": true
+        },
+        {
+          "name": "extra",
+          "ioValue": "__GEOMETRY_INPUT__"
+        }
+      ],
+      "interpreterVersion": 1,
+      "code": "/**\r\n * NACA 4-digit airfoil wing (e.g. 2412 -> maxCamber=2, camberPosition=4, thickness=12).\r\n * Closed trailing edge. Extrudes the profile along the sketch normal for the span.\r\n */\r\nfunction run(\r\n  chord: number = 100, // chord length, mm\r\n  span: number = 200, // spanwise extrusion length, mm\r\n  maxCamber: number = 2, // max camber, % of chord (the \"M\" digit)\r\n  camberPosition: number = 4, // location of max camber, tenths of chord (the \"P\" digit)\r\n  thickness: number = 12, // max thickness, % of chord (the \"TT\" digits)\r\n  numPoints: number = 50, // points per surface (resolution)\r\n  color: string = \"#4A90E2\",\r\n): Assembly {\r\n  const m = maxCamber / 100;\r\n  const p = camberPosition / 10;\r\n  const t = thickness / 100;\r\n\r\n  function camber(x: number): { yc: number; dyc: number } {\r\n    if (p === 0 || m === 0) return { yc: 0, dyc: 0 };\r\n    if (x < p) {\r\n      return {\r\n        yc: (m / (p * p)) * (2 * p * x - x * x),\r\n        dyc: ((2 * m) / (p * p)) * (p - x),\r\n      };\r\n    }\r\n    return {\r\n      yc: (m / ((1 - p) * (1 - p))) * (1 - 2 * p + 2 * p * x - x * x),\r\n      dyc: ((2 * m) / ((1 - p) * (1 - p))) * (p - x),\r\n    };\r\n  }\r\n\r\n  // Closed-trailing-edge thickness distribution\r\n  function thicknessDist(x: number): number {\r\n    return (\r\n      5 *\r\n      t *\r\n      (0.2969 * Math.sqrt(x) -\r\n        0.126 * x -\r\n        0.3516 * x * x +\r\n        0.2843 * x * x * x -\r\n        0.1036 * x * x * x * x)\r\n    );\r\n  }\r\n\r\n  // Cosine spacing packs points near the leading/trailing edges\r\n  const xs: number[] = [];\r\n  for (let i = 0; i <= numPoints; i++) {\r\n    xs.push((1 - Math.cos((Math.PI * i) / numPoints)) / 2);\r\n  }\r\n\r\n  const upper: [number, number][] = [];\r\n  const lower: [number, number][] = [];\r\n\r\n  for (const x of xs) {\r\n    const { yc, dyc } = camber(x);\r\n    const yt = thicknessDist(x);\r\n    const theta = Math.atan(dyc);\r\n\r\n    upper.push([(x - yt * Math.sin(theta)) * chord, (yc + yt * Math.cos(theta)) * chord]);\r\n    lower.push([(x + yt * Math.sin(theta)) * chord, (yc - yt * Math.cos(theta)) * chord]);\r\n  }\r\n\r\n  // Perimeter: leading edge -> along upper surface to trailing edge -> back along lower surface\r\n  const points: [number, number][] = [...upper];\r\n  for (let i = numPoints - 1; i >= 1; i--) points.push(lower[i]);\r\n\r\n  const profile = replicad.drawPolygon(points);\r\n\r\n  const wing = profile\r\n    .sketchOnPlane()\r\n    .extrude(span)\r\n    .translate(-chord / 2, 0, 0); // center on chord\r\n\r\n  return new Assembly({\r\n    geometry: wing,\r\n    color: color,\r\n    tags: [\"airfoil\", \"naca\", `naca-${maxCamber}${camberPosition}${thickness}`],\r\n    bom: [\r\n      `NACA ${maxCamber}${camberPosition}${thickness} airfoil, chord ${chord}mm, span ${span}mm`,\r\n    ],\r\n  });\r\n}",
+      "compiledCode": "\"use strict\";\n/**\n * NACA 4-digit airfoil wing (e.g. 2412 -> maxCamber=2, camberPosition=4, thickness=12).\n * Closed trailing edge. Extrudes the profile along the sketch normal for the span.\n */\nfunction run(chord = 100, // chord length, mm\nspan = 200, // spanwise extrusion length, mm\nmaxCamber = 2, // max camber, % of chord (the \"M\" digit)\ncamberPosition = 4, // location of max camber, tenths of chord (the \"P\" digit)\nthickness = 12, // max thickness, % of chord (the \"TT\" digits)\nnumPoints = 50, // points per surface (resolution)\ncolor = \"#4A90E2\") {\n    const m = maxCamber / 100;\n    const p = camberPosition / 10;\n    const t = thickness / 100;\n    function camber(x) {\n        if (p === 0 || m === 0)\n            return { yc: 0, dyc: 0 };\n        if (x < p) {\n            return {\n                yc: (m / (p * p)) * (2 * p * x - x * x),\n                dyc: ((2 * m) / (p * p)) * (p - x),\n            };\n        }\n        return {\n            yc: (m / ((1 - p) * (1 - p))) * (1 - 2 * p + 2 * p * x - x * x),\n            dyc: ((2 * m) / ((1 - p) * (1 - p))) * (p - x),\n        };\n    }\n    // Closed-trailing-edge thickness distribution\n    function thicknessDist(x) {\n        return (5 *\n            t *\n            (0.2969 * Math.sqrt(x) -\n                0.126 * x -\n                0.3516 * x * x +\n                0.2843 * x * x * x -\n                0.1036 * x * x * x * x));\n    }\n    // Cosine spacing packs points near the leading/trailing edges\n    const xs = [];\n    for (let i = 0; i <= numPoints; i++) {\n        xs.push((1 - Math.cos((Math.PI * i) / numPoints)) / 2);\n    }\n    const upper = [];\n    const lower = [];\n    for (const x of xs) {\n        const { yc, dyc } = camber(x);\n        const yt = thicknessDist(x);\n        const theta = Math.atan(dyc);\n        upper.push([(x - yt * Math.sin(theta)) * chord, (yc + yt * Math.cos(theta)) * chord]);\n        lower.push([(x + yt * Math.sin(theta)) * chord, (yc - yt * Math.cos(theta)) * chord]);\n    }\n    // Perimeter: leading edge -> along upper surface to trailing edge -> back along lower surface\n    const points = [...upper];\n    for (let i = numPoints - 1; i >= 1; i--)\n        points.push(lower[i]);\n    const profile = replicad.drawPolygon(points);\n    const wing = profile\n        .sketchOnPlane()\n        .extrude(span)\n        .translate(-chord / 2, 0, 0); // center on chord\n    return new Assembly({\n        geometry: wing,\n        color: color,\n        tags: [\"airfoil\", \"naca\", `naca-${maxCamber}${camberPosition}${thickness}`],\n        bom: [\n            `NACA ${maxCamber}${camberPosition}${thickness} airfoil, chord ${chord}mm, span ${span}mm`,\n        ],\n    });\n}\n"
     }
   ],
   "allConnectors": [
